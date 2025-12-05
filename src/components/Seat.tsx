@@ -3,7 +3,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { cn } from '@/lib/utils.ts';
 import React from 'react';
 
-type SeatData = {
+export type SeatData = {
 	seatId: string;
 	row: number;
 	place: number;
