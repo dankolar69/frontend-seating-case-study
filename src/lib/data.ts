@@ -31,7 +31,12 @@ export const uiTexts = {
         loginFail: 'Login failed: Zkontroluj přihlašovací údaje.',
         loggedInAs: 'Objednávku dokončíme na účet',
         addToCalendar: 'Přidat do kalendáře',
-        ticketsWord: 'vstupenek'
+        ticketsWord: 'vstupenek',
+        seatRow: 'Řada',
+        seatPlace: 'Místo',
+        seatType: 'Typ',
+        seatPrice: 'Cena'
+
     },
     en: {
         appName: 'NFCTRON Seating Demo',
@@ -63,7 +68,11 @@ export const uiTexts = {
         loginFail: 'Login failed: Please check credentials.',
         loggedInAs: 'We will complete the order for account',
         addToCalendar: 'Add to calendar',
-        ticketsWord: 'tickets'
+        ticketsWord: 'tickets',
+        seatRow: 'Row',
+        seatPlace: 'Seat',
+        seatType: 'Type',
+        seatPrice: 'Price'
     }
 } as const;
 

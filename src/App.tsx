@@ -357,9 +357,10 @@ function App() {
 		<div className="flex flex-col grow min-h-screen bg-zinc-50">
 			{/* header */}
 			<nav className="sticky top-0 left-0 right-0 bg-white border-b border-zinc-200 flex justify-center">
-				<div className="max-w-screen-lg p-4 grow flex items-center justify-between gap-3">
+				<div className="max-w-screen-lg p-4 grow flex flex-wrap items-center justify-between gap-3">
 					<div className="max-w-[250px] w-full flex items-center gap-2">
-						<div className="bg-violet-600 rounded-md size-12 flex items-center justify-center text-white font-bold text-xl">
+						<div
+							className="bg-violet-600 rounded-md size-12 flex items-center justify-center text-white font-bold text-xl">
 							N
 						</div>
 						<div className="hidden sm:flex flex-col">
@@ -367,6 +368,7 @@ function App() {
 							<span className="text-xs text-zinc-500">Case study 2024 – React/TS</span>
 						</div>
 					</div>
+
 
 					{/* Right side login menu */}
 					{/* Right side: language + login menu */}
@@ -438,34 +440,35 @@ function App() {
 
 			{/* main body */}
 			<main className="grow flex flex-col justify-center">
-				<div className="max-w-screen-lg m-auto p-4 flex items-start grow gap-3 w-full">
+				<div className="max-w-screen-lg m-auto p-4 flex flex-col md:flex-row items-start grow gap-3 w-full">
 					{/* seating map */}
-					<div
-						className="bg-white rounded-md grow p-3 self-stretch shadow-sm flex flex-col gap-2"
-					>
+					<div className="bg-white rounded-md grow p-3 self-stretch shadow-sm flex flex-col gap-2">
 						<h2 className="text-sm font-medium mb-2">{t.seatingTitle}</h2>
 
 						{loading && <p>{t.loading}</p>}
 
-
-						{!loading &&
-							seatingRows.map((row) => (
-								<div key={row.seatRow} className="flex items-center gap-2">
-									<div className="w-6 text-xs text-zinc-400 text-right">{row.seatRow}</div>
-									<div className="flex gap-1">
-										{row.seats.map((seat) => (
-											<Seat
-												key={seat.seatId}
-												seatData={seat}
-												isInCart={!!cart[seat.seatId]}
-												lang={lang}
-												currency={currency}
-												onToggle={() => toggleSeatInCart(seat)}
-											/>
-										))}
+						{!loading && (
+							<div className="flex flex-col gap-1 max-h-[350px] sm:max-h-[450px] overflow-auto pr-1">
+								{seatingRows.map((row) => (
+									<div key={row.seatRow} className="flex items-center gap-2">
+										<div className="w-6 text-xs text-zinc-400 text-right">{row.seatRow}</div>
+										<div className="flex gap-1">
+											{row.seats.map((seat) => (
+												<Seat
+													key={seat.seatId}
+													seatData={seat}
+													isInCart={!!cart[seat.seatId]}
+													lang={lang}
+													currency={currency}
+													onToggle={() => toggleSeatInCart(seat)}
+												/>
+											))}
+										</div>
 									</div>
-								</div>
-							))}
+								))}
+							</div>
+						)}
+
 						{/* Cart management */}
 						<div className="mt-4 border-t border-zinc-100 pt-3">
 							<h3 className="text-sm font-semibold text-zinc-900 mb-2">
@@ -478,50 +481,52 @@ function App() {
 								</p>
 							) : (
 								<div className="max-h-48 overflow-auto rounded-md border border-zinc-100">
-									<table className="w-full text-xs">
-										<thead className="bg-zinc-50 text-zinc-500">
-										<tr>
-											<th className="text-left px-2 py-1">{t.seatRow}</th>
-											<th className="text-left px-2 py-1">{t.seatPlace}</th>
-											<th className="text-left px-2 py-1">{t.seatType}</th>
-											<th className="text-right px-2 py-1">{t.seatPrice}</th>
-											<th className="px-2 py-1" />
-										</tr>
-										</thead>
-										<tbody>
-										{cartItems.map((item) => (
-											<tr
-												key={item.seatId}
-												className="border-t border-zinc-100"
-											>
-												<td className="px-2 py-1 text-zinc-600">{item.row}</td>
-												<td className="px-2 py-1 text-zinc-600">{item.place}</td>
-												<td className="px-2 py-1 text-zinc-600">{item.ticketTypeName}</td>
-												<td className="px-2 py-1 text-right text-black">
-													{formatCurrency(item.price, currency)}
-												</td>
-												<td className="px-2 py-1 text-right text-black">
-													<Button
-														variant="destructive"
-														size="sm"
-														onClick={() => toggleSeatInCart(item)}
-													>
-														{t.cartRemove}
-													</Button>
-												</td>
+									<div className="min-w-[320px]">
+										<table className="w-full text-xs">
+											<thead className="bg-zinc-50 text-zinc-500">
+											<tr>
+												<th className="text-left px-2 py-1">{t.seatRow}</th>
+												<th className="text-left px-2 py-1">{t.seatPlace}</th>
+												<th className="text-left px-2 py-1">{t.seatType}</th>
+												<th className="text-right px-2 py-1">{t.seatPrice}</th>
+												<th className="px-2 py-1"/>
 											</tr>
-										))}
-										</tbody>
-									</table>
+											</thead>
+											<tbody>
+											{cartItems.map((item) => (
+												<tr
+													key={item.seatId}
+													className="border-t border-zinc-100"
+												>
+													<td className="px-2 py-1 text-zinc-600">{item.row}</td>
+													<td className="px-2 py-1 text-zinc-600">{item.place}</td>
+													<td className="px-2 py-1 text-zinc-600">{item.ticketTypeName}</td>
+													<td className="px-2 py-1 text-right text-black">
+														{formatCurrency(item.price, currency)}
+													</td>
+													<td className="px-2 py-1 text-right text-black">
+														<Button
+															variant="destructive"
+															size="sm"
+															onClick={() => toggleSeatInCart(item)}
+														>
+															{t.cartRemove}
+														</Button>
+													</td>
+												</tr>
+											))}
+											</tbody>
+										</table>
+									</div>
+									</div>
+									)}
 								</div>
-							)}
-						</div>
 
-					</div>
+								</div>
 
-					{/* event info */}
-					<aside className="w-full max-w-sm bg-white rounded-md shadow-sm p-3 flex flex-col gap-2">
-						{eventData?.headerImageUrl ? (
+							{/* event info */}
+							<aside className="w-full md:max-w-sm bg-white rounded-md shadow-sm p-3 flex flex-col gap-2">
+								{eventData?.headerImageUrl ? (
 							<img
 								src={eventData.headerImageUrl}
 								alt=""
@@ -532,6 +537,16 @@ function App() {
 						)}
 
 						<h1 className="text-xl font-semibold text-black">{eventData?.namePub}</h1>
+						{eventData && (
+							<div className="text-xs text-zinc-500 flex flex-col gap-0.5">
+    <span>
+      {new Date(eventData.dateFrom).toLocaleString(lang === 'cs' ? 'cs-CZ' : 'en-GB')}
+		{' – '}
+		{new Date(eventData.dateTo).toLocaleString(lang === 'cs' ? 'cs-CZ' : 'en-GB')}
+    </span>
+								<span>{eventData.place}</span>
+							</div>
+						)}
 
 						<p className="text-sm text-zinc-500 whitespace-pre-line">
 							{eventData?.description}
@@ -549,30 +564,31 @@ function App() {
 			</main>
 
 			{/* bottom cart */}
-			<nav className="sticky bottom-0 left-0 right-0 bg-white border-t border-zinc-200 flex justify-center">
-				<div className="max-w-screen-lg p-6 flex justify-between items-center w-full gap-4">
-					<div>
-            <span className="text-sm text-zinc-600">
-              {t.totalFor(totalTickets)}:
-            </span>
-						<div className="text-2xl font-semibold text-black">
-							{formatCurrency(totalAmount, currency)}
-						</div>
+			<div
+				className="max-w-screen-lg p-4 sm:p-6 flex flex-col sm:flex-row justify-between items-center w-full gap-3">
+				<div className="w-full sm:w-auto text-center sm:text-left">
+    <span className="text-sm text-zinc-600">
+      {t.totalFor(totalTickets)}:
+    </span>
+					<div className="text-2xl font-semibold text-black">
+						{formatCurrency(totalAmount, currency)}
 					</div>
-
-					<Button
-						disabled={totalTickets === 0 || !eventData}
-						onClick={openCheckout}
-					>
-						{t.checkoutButton}
-					</Button>
 				</div>
-			</nav>
+
+				<Button
+					className="w-full sm:w-auto"
+					disabled={totalTickets === 0 || !eventData}
+					onClick={openCheckout}
+				>
+					{t.checkoutButton}
+				</Button>
+			</div>
+
 
 			{/* Checkout Modal */}
 			{checkoutStep !== 'idle' && (
 				<div className="fixed inset-0 bg-black/40 flex items-center justify-center z-30">
-					<div className="bg-white max-w-md w-full mx-4 rounded-lg shadow-lg p-4 sm:p-6 relative">
+					<div className="bg-white max-w-md w-full mx-4 rounded-lg shadow-lg p-4 sm:p-6 relative max-h-[90vh] overflow-auto">
 						<button
 							type="button"
 							className="absolute right-3 top-2 text-zinc-400 hover:text-zinc-600 text-xl"
