@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button.tsx';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover.tsx';
 import { cn } from '@/lib/utils.ts';
 import React from 'react';
+import { Language, seatTexts } from '@/lib/data.ts';
 
 export type SeatData = {
 	seatId: string;
@@ -15,10 +16,13 @@ interface SeatProps extends React.HTMLAttributes<HTMLDivElement> {
 	seatData: SeatData;
 	isInCart: boolean;
 	onToggle: () => void;
+	lang: Language;
+	currency: string;
 }
 
 export const Seat = React.forwardRef<HTMLDivElement, SeatProps>((props, ref) => {
-	const { seatData, isInCart, onToggle, className, ...rest } = props;
+	const { seatData, isInCart, onToggle, className, lang, currency, ...rest } = props;
+	const tr = seatTexts[lang];
 
 	return (
 		<Popover>
@@ -40,31 +44,35 @@ export const Seat = React.forwardRef<HTMLDivElement, SeatProps>((props, ref) => 
 
 			<PopoverContent className="w-64">
 				<div className="mb-3 text-sm">
-					<div className="font-medium mb-1">Sedadlo</div>
+					<div className="font-medium mb-1">{tr.seatTitle}</div>
 					<div className="text-xs text-zinc-600">
-						Řada <strong>{seatData.row}</strong>, místo{' '}
+						{tr.rowLabel}{' '}
+						<strong>{seatData.row}</strong>, {tr.placeLabel.toLowerCase()}{' '}
 						<strong>{seatData.place}</strong>
 					</div>
 					<div className="text-xs text-zinc-600">
-						Typ: <strong>{seatData.ticketTypeName}</strong>
+						{tr.typeLabel}: <strong>{seatData.ticketTypeName}</strong>
 					</div>
 					<div className="text-xs text-zinc-600">
-						Cena: <strong>{seatData.price} Kč</strong>
+						{tr.priceLabel}:{' '}
+						<strong>
+							{seatData.price} {currency}
+						</strong>
 					</div>
 				</div>
 
-				{/*<pre className="text-[10px] bg-zinc-50 rounded p-2 mb-3 overflow-auto max-h-32">
+				<pre className="text-[10px] bg-zinc-50 rounded p-2 mb-3 overflow-auto max-h-32">
 {JSON.stringify({ seatData }, null, 2)}
-        </pre>*/}
+        </pre>
 
 				<footer className="flex flex-col">
 					{isInCart ? (
 						<Button variant="destructive" size="sm" onClick={onToggle}>
-							Remove from cart
+							{tr.removeFromCart}
 						</Button>
 					) : (
 						<Button variant="default" size="sm" onClick={onToggle}>
-							Add to cart
+							{tr.addToCart}
 						</Button>
 					)}
 				</footer>

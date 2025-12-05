@@ -13,6 +13,8 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar.tsx';
 import './App.css';
 
+import {uiTexts, Language} from "@/lib/data.ts";
+
 const API_BASE = 'https://nfctron-frontend-seating-case-study-2024.vercel.app';
 
 // ======================
@@ -200,6 +202,10 @@ function App() {
 	const [ticketsData, setTicketsData] = useState<EventTicketsResponse | null>(null);
 	const [loading, setLoading] = useState(true);
 
+	// language
+	const [lang, setLang] = useState<Language>('cs');
+	const t = uiTexts[lang];
+
 	// Cart
 	const [cart, setCart] = useState<Record<string, SeatData>>({});
 	const cartItems = useMemo(
@@ -362,14 +368,35 @@ function App() {
 					</div>
 
 					{/* Right side login menu */}
+					{/* Right side: language + login menu */}
 					<div className="flex items-center gap-4">
+						{/* Language toggle */}
+						<div className="flex items-center gap-1">
+							<Button
+								variant={lang === 'cs' ? 'default' : 'outline'}
+								size="sm"
+								onClick={() => setLang('cs')}
+							>
+								CZ
+							</Button>
+							<Button
+								variant={lang === 'en' ? 'default' : 'outline'}
+								size="sm"
+								onClick={() => setLang('en')}
+							>
+								EN
+							</Button>
+						</div>
+
 						{user ? (
 							<DropdownMenu>
 								<DropdownMenuTrigger asChild>
 									<Button variant="ghost">
 										<div className="flex items-center gap-2">
 											<Avatar>
-												<AvatarImage src={`https://source.boringavatars.com/marble/120/${user.email}`} />
+												<AvatarImage
+													src={`https://source.boringavatars.com/marble/120/${user.email}`}
+												/>
 												<AvatarFallback>
 													{user.firstName[0]}
 													{user.lastName[0]}
@@ -380,7 +407,9 @@ function App() {
                         <span className="text-sm font-medium">
                           {user.firstName} {user.lastName}
                         </span>
-												<span className="text-xs text-zinc-500">{user.email}</span>
+												<span className="text-xs text-zinc-500">
+                          {user.email}
+                        </span>
 											</div>
 										</div>
 									</Button>
@@ -390,16 +419,19 @@ function App() {
 									<DropdownMenuLabel>Logged in</DropdownMenuLabel>
 									<DropdownMenuSeparator />
 									<DropdownMenuGroup>
-										<DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
+										<DropdownMenuItem onClick={handleLogout}>
+											Logout
+										</DropdownMenuItem>
 									</DropdownMenuGroup>
 								</DropdownMenuContent>
 							</DropdownMenu>
 						) : (
 							<Button onClick={handleLogin} disabled={loginLoading}>
-								{loginLoading ? 'Logging in…' : 'Login'}
+								{loginLoading ? t.loggingIn : t.login}
 							</Button>
 						)}
 					</div>
+
 				</div>
 			</nav>
 
@@ -410,9 +442,10 @@ function App() {
 					<div
 						className="bg-white rounded-md grow p-3 self-stretch shadow-sm flex flex-col gap-2"
 					>
-						<h2 className="text-sm font-medium mb-2">Seating</h2>
+						<h2 className="text-sm font-medium mb-2">{t.seatingTitle}</h2>
 
-						{loading && <p>Načítám data…</p>}
+						{loading && <p>{t.loading}</p>}
+
 
 						{!loading &&
 							seatingRows.map((row) => (
@@ -424,6 +457,8 @@ function App() {
 												key={seat.seatId}
 												seatData={seat}
 												isInCart={!!cart[seat.seatId]}
+												lang={lang}
+												currency={currency}
 												onToggle={() => toggleSeatInCart(seat)}
 											/>
 										))}
@@ -433,13 +468,12 @@ function App() {
 						{/* Cart management */}
 						<div className="mt-4 border-t border-zinc-100 pt-3">
 							<h3 className="text-sm font-semibold text-zinc-900 mb-2">
-								Košík
+								{t.cartTitle}
 							</h3>
 
 							{cartItems.length === 0 ? (
 								<p className="text-xs text-zinc-500">
-									Zatím nemáš vybranou žádnou vstupenku. Kliknutím na sedadlo
-									ji přidáš do košíku – opětovným kliknutím ji odebereš.
+									{t.cartEmpty}
 								</p>
 							) : (
 								<div className="max-h-48 overflow-auto rounded-md border border-zinc-100">
@@ -471,7 +505,7 @@ function App() {
 														size="sm"
 														onClick={() => toggleSeatInCart(item)}
 													>
-														Odebrat
+														{t.cartRemove}
 													</Button>
 												</td>
 											</tr>
@@ -507,7 +541,7 @@ function App() {
 							disabled={!eventData}
 							onClick={() => eventData && downloadIcsForEvent(eventData)}
 						>
-							Add to calendar
+							{t.addToCalendar}
 						</Button>
 					</aside>
 				</div>
@@ -518,7 +552,7 @@ function App() {
 				<div className="max-w-screen-lg p-6 flex justify-between items-center w-full gap-4">
 					<div>
             <span className="text-sm text-zinc-600">
-              Total for {totalTickets} ticket{totalTickets !== 1 && 's'}
+              {t.totalFor(totalTickets)}:
             </span>
 						<div className="text-2xl font-semibold text-black">
 							{formatCurrency(totalAmount, currency)}
@@ -529,7 +563,7 @@ function App() {
 						disabled={totalTickets === 0 || !eventData}
 						onClick={openCheckout}
 					>
-						Checkout now
+						{t.checkoutButton}
 					</Button>
 				</div>
 			</nav>
@@ -548,17 +582,17 @@ function App() {
 							×
 						</button>
 
-						<h2 className="text-lg font-semibold mb-1 text-black">Dokončení objednávky</h2>
+						<h2 className="text-lg font-semibold mb-1 text-black">{t.checkoutTitle}</h2>
 						<p className="text-xs text-zinc-500 mb-3">
-							V košíku máš {totalTickets} vstupenk
-							{totalTickets === 1 ? 'u' : totalTickets < 5 ? 'y' : 'ek'} za{' '}
+							{t.checkoutSummaryIntro}{' '}
+							{totalTickets} {lang === 'cs' ? `vstupenk${totalTickets === 1 ? 'u' : totalTickets < 5 ? 'y' : 'ek'}` : t.ticketsWord}{' '}
 							{formatCurrency(totalAmount, currency)}.
 						</p>
 
 						{orderResult && checkoutStep === 'success' && (
 							<div
 								className="mb-3 rounded-md border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800">
-								<p className="font-medium mb-1">Objednávka vytvořena ✔️</p>
+								<p className="font-medium mb-1">{t.orderSuccessTitle}</p>
 								<p className="break-all text-xs">
 									ID objednávky: {orderResult.orderId}
 								</p>
@@ -585,7 +619,7 @@ function App() {
 										</p>
 										<div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
 											<div className="flex flex-col gap-1">
-												<label className="text-xs text-zinc-600">Jméno</label>
+												<label className="text-xs text-zinc-600">{t.firstName}</label>
 												<input
 													className="border rounded-md px-2 py-1 text-sm"
 													value={guestFirstName}
@@ -596,7 +630,7 @@ function App() {
 												/>
 											</div>
 											<div className="flex flex-col gap-1">
-												<label className="text-xs text-zinc-600">Příjmení</label>
+												<label className="text-xs text-zinc-600">{t.lastName}</label>
 												<input
 													className="border rounded-md px-2 py-1 text-sm"
 													value={guestLastName}
@@ -609,7 +643,7 @@ function App() {
 										</div>
 										<div className="flex flex-col gap-1">
 											<label className="text-xs text-zinc-600">
-												E-mail pro zaslání vstupenek
+												{t.email}
 											</label>
 											<input
 												className="border rounded-md px-2 py-1 text-sm"
@@ -647,9 +681,7 @@ function App() {
 											checkoutStep === 'submitting' || totalTickets === 0
 										}
 									>
-										{checkoutStep === 'submitting'
-											? 'Odesílám…'
-											: 'Dokončit objednávku'}
+										{checkoutStep === 'submitting' ? t.submitting : t.submitOrder}
 									</Button>
 								</div>
 							</>
