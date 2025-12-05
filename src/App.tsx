@@ -1,8 +1,16 @@
 import  { useEffect, useMemo, useState } from 'react';
 import { Seat, SeatData } from '@/components/Seat.tsx';
-
 import { Button } from '@/components/ui/button.tsx';
-
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuGroup,
+	DropdownMenuItem,
+	DropdownMenuLabel,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu.tsx';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar.tsx';
 import './App.css';
 
 const API_BASE = 'https://nfctron-frontend-seating-case-study-2024.vercel.app';
@@ -42,6 +50,14 @@ type EventTicketsResponse = {
 	ticketTypes: TicketType[];
 	seatRows: SeatRowApi[];
 };
+type LoginResponse = {
+	message: string;
+	user: {
+		firstName: string;
+		lastName: string;
+		email: string;
+	};
+};
 
 // ======================
 // Helpers
@@ -49,6 +65,17 @@ type EventTicketsResponse = {
 async function apiGet<T>(path: string): Promise<T> {
 	const res = await fetch(`${API_BASE}${path}`);
 	if (!res.ok) throw new Error(`GET ${path} failed: ${res.status}`);
+	return res.json();
+}
+async function apiPost<T>(path: string, body: unknown): Promise<T> {
+	const res = await fetch(`${API_BASE}${path}`, {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify(body)
+	});
+
+	if (!res.ok) throw new Error(`POST ${path} failed: ${res.status}`);
+
 	return res.json();
 }
 
@@ -64,7 +91,30 @@ function formatCurrency(value: number, currency: string) {
 // ======================
 
 function App() {
-	const isLoggedIn = false;
+
+	//Login state
+	const [user, setUser] = useState<LoginResponse['user'] | null>(null);
+	const[loginLoading, setLoginLoading]=useState(false);
+
+	const handleLogin = async () => {
+		setLoginLoading(true);
+		try {
+			const res = await apiPost<LoginResponse>('/login', {
+				email: 'frontend@nfctron.com',
+				password: 'Nfctron2025'
+			});
+			setUser(res.user);
+		} catch (e) {
+			console.error('Login failed', e);
+			alert('Login failed: Zkontroluj přihlašovací údaje.');
+		} finally {
+			setLoginLoading(false);
+		}
+	};
+
+	const handleLogout = () => {
+		setUser(null);
+	};
 
 	// API data
 	const [eventData, setEventData] = useState<EventResponse | null>(null);
@@ -152,12 +202,42 @@ function App() {
 						</div>
 					</div>
 
-					<div className="bg-zinc-100 rounded-md h-8 w-[200px]" />
+					{/* Right side login menu */}
+					<div className="flex items-center gap-4">
+						{user ? (
+							<DropdownMenu>
+								<DropdownMenuTrigger asChild>
+									<Button variant="ghost">
+										<div className="flex items-center gap-2">
+											<Avatar>
+												<AvatarImage src={`https://source.boringavatars.com/marble/120/${user.email}`} />
+												<AvatarFallback>
+													{user.firstName[0]}
+													{user.lastName[0]}
+												</AvatarFallback>
+											</Avatar>
 
-					<div className="max-w-[250px] w-full flex justify-end">
-						{!isLoggedIn && (
-							<Button variant="secondary" disabled>
-								Login or register
+											<div className="flex flex-col text-left">
+                        <span className="text-sm font-medium">
+                          {user.firstName} {user.lastName}
+                        </span>
+												<span className="text-xs text-zinc-500">{user.email}</span>
+											</div>
+										</div>
+									</Button>
+								</DropdownMenuTrigger>
+
+								<DropdownMenuContent className="w-48">
+									<DropdownMenuLabel>Logged in</DropdownMenuLabel>
+									<DropdownMenuSeparator />
+									<DropdownMenuGroup>
+										<DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
+									</DropdownMenuGroup>
+								</DropdownMenuContent>
+							</DropdownMenu>
+						) : (
+							<Button onClick={handleLogin} disabled={loginLoading}>
+								{loginLoading ? 'Logging in…' : 'Login'}
 							</Button>
 						)}
 					</div>
