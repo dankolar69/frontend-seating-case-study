@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button.tsx';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover.tsx';
 import { cn } from '@/lib/utils.ts';
-import React from 'react';
+import React, {useState} from 'react';
 import { Language, seatTexts } from '@/lib/data.ts';
 
 export type SeatData = {
@@ -24,8 +24,15 @@ export const Seat = React.forwardRef<HTMLDivElement, SeatProps>((props, ref) => 
 	const { seatData, isInCart, onToggle, className, lang, currency, ...rest } = props;
 	const tr = seatTexts[lang];
 
+	//Close modal when adding/removing seat
+	const [isPopoverOpen, setPopoverOpen] = useState(false);
+	const handleToggle = () => {
+		onToggle();
+		setPopoverOpen(false);
+	};
+
 	return (
-		<Popover>
+		<Popover open={isPopoverOpen} onOpenChange={setPopoverOpen}>
 			<PopoverTrigger asChild>
 				<div
 					ref={ref}
@@ -61,17 +68,17 @@ export const Seat = React.forwardRef<HTMLDivElement, SeatProps>((props, ref) => 
 					</div>
 				</div>
 
-				<pre className="text-[10px] bg-zinc-50 rounded p-2 mb-3 overflow-auto max-h-32">
+				{/*<pre className="text-[10px] bg-zinc-50 rounded p-2 mb-3 overflow-auto max-h-32">
 {JSON.stringify({ seatData }, null, 2)}
-        </pre>
+        </pre>*/}
 
 				<footer className="flex flex-col">
 					{isInCart ? (
-						<Button variant="destructive" size="sm" onClick={onToggle}>
+						<Button variant="destructive" size="sm" onClick={handleToggle}>
 							{tr.removeFromCart}
 						</Button>
 					) : (
-						<Button variant="default" size="sm" onClick={onToggle}>
+						<Button variant="default" size="sm" onClick={handleToggle}>
 							{tr.addToCart}
 						</Button>
 					)}

@@ -228,6 +228,7 @@ function App() {
 	const [orderResult, setOrderResult] = useState<OrderResponse | null>(null);
 	const [orderError, setOrderError] = useState<string | null>(null);
 
+
 	const openCheckout = () => {
 		if (totalTickets === 0 || !eventData) return;
 		setCheckoutStep('details');
@@ -480,10 +481,10 @@ function App() {
 									<table className="w-full text-xs">
 										<thead className="bg-zinc-50 text-zinc-500">
 										<tr>
-											<th className="text-left px-2 py-1">Řada</th>
-											<th className="text-left px-2 py-1">Místo</th>
-											<th className="text-left px-2 py-1">Typ</th>
-											<th className="text-right px-2 py-1">Cena</th>
+											<th className="text-left px-2 py-1">{t.seatRow}</th>
+											<th className="text-left px-2 py-1">{t.seatPlace}</th>
+											<th className="text-left px-2 py-1">{t.seatType}</th>
+											<th className="text-right px-2 py-1">{t.seatPrice}</th>
 											<th className="px-2 py-1" />
 										</tr>
 										</thead>
@@ -501,7 +502,7 @@ function App() {
 												</td>
 												<td className="px-2 py-1 text-right text-black">
 													<Button
-														variant="outline"
+														variant="destructive"
 														size="sm"
 														onClick={() => toggleSeatInCart(item)}
 													>
@@ -614,8 +615,7 @@ function App() {
 								{!user && (
 									<div className="mb-4 rounded-md border border-zinc-200 p-3 flex flex-col gap-2">
 										<p className="text-xs text-zinc-600">
-											Můžeš se přihlásit testovacím účtem (tlačítko nahoře) –
-											nebo pokračovat jako host:
+											{t.checkoutGuestInfo}
 										</p>
 										<div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
 											<div className="flex flex-col gap-1">
@@ -673,7 +673,7 @@ function App() {
 										onClick={closeCheckout}
 										disabled={checkoutStep === 'submitting'}
 									>
-										Zpět
+										{t.back}
 									</Button>
 									<Button
 										onClick={handleSubmitOrder}
