@@ -53,9 +53,9 @@ export const Seat = React.forwardRef<HTMLDivElement, SeatProps>((props, ref) => 
 					</div>
 				</div>
 
-				<pre className="text-[10px] bg-zinc-50 rounded p-2 mb-3 overflow-auto max-h-32">
+				{/*<pre className="text-[10px] bg-zinc-50 rounded p-2 mb-3 overflow-auto max-h-32">
 {JSON.stringify({ seatData }, null, 2)}
-        </pre>
+        </pre>*/}
 
 				<footer className="flex flex-col">
 					{isInCart ? (
