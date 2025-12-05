@@ -113,6 +113,57 @@ function formatCurrency(value: number, currency: string) {
 		currency
 	}).format(value);
 }
+// ICS "Add to calendar"
+function downloadIcsForEvent(event: EventResponse) {
+	const start = new Date(event.dateFrom);
+	const end = new Date(event.dateTo);
+
+	const toIcsDateTime = (d: Date) => {
+		const pad = (n: number) => String(n).padStart(2, '0');
+		return (
+			d.getUTCFullYear().toString() +
+			pad(d.getUTCMonth() + 1) +
+			pad(d.getUTCDate()) +
+			'T' +
+			pad(d.getUTCHours()) +
+			pad(d.getUTCMinutes()) +
+			pad(d.getUTCSeconds()) +
+			'Z'
+		);
+	};
+
+	const dtStart = toIcsDateTime(start);
+	const dtEnd = toIcsDateTime(end);
+
+	const icsLines = [
+		'BEGIN:VCALENDAR',
+		'VERSION:2.0',
+		'PRODID:-//NFCTRON//Seating Case Study//CS',
+		'CALSCALE:GREGORIAN',
+		'METHOD:PUBLISH',
+		'BEGIN:VEVENT',
+		`UID:${event.eventId}`,
+		`SUMMARY:${event.namePub.replace(/\r?\n/g, ' ')}`,
+		`DESCRIPTION:${event.description.replace(/\r?\n/g, '\\n')}`,
+		`LOCATION:${event.place.replace(/\r?\n/g, ' ')}`,
+		`DTSTART:${dtStart}`,
+		`DTEND:${dtEnd}`,
+		'END:VEVENT',
+		'END:VCALENDAR'
+	];
+
+	const blob = new Blob([icsLines.join('\r\n')], {
+		type: 'text/calendar;charset=utf-8'
+	});
+	const url = URL.createObjectURL(blob);
+	const a = document.createElement('a');
+	a.href = url;
+	a.download = `${event.namePub}.ics`;
+	document.body.appendChild(a);
+	a.click();
+	document.body.removeChild(a);
+	URL.revokeObjectURL(url);
+}
 
 // ======================
 // Component
@@ -151,9 +202,16 @@ function App() {
 
 	// Cart
 	const [cart, setCart] = useState<Record<string, SeatData>>({});
+	const cartItems = useMemo(
+		() =>
+			Object.values(cart).sort(
+				(a, b) => a.row - b.row || a.place - b.place
+			),
+		[cart]
+	);
 
 	const totalTickets = Object.keys(cart).length;
-	const totalAmount = Object.values(cart).reduce((sum, seat) => sum + seat.price, 0);
+	const totalAmount = Object.values(cartItems).reduce((sum, seat) => sum + seat.price, 0);
 	const currency = eventData?.currencyIso ?? 'CZK';
 
 	// CHECKOUT STATE
@@ -372,6 +430,58 @@ function App() {
 									</div>
 								</div>
 							))}
+						{/* Cart management */}
+						<div className="mt-4 border-t border-zinc-100 pt-3">
+							<h3 className="text-sm font-semibold text-zinc-900 mb-2">
+								Košík
+							</h3>
+
+							{cartItems.length === 0 ? (
+								<p className="text-xs text-zinc-500">
+									Zatím nemáš vybranou žádnou vstupenku. Kliknutím na sedadlo
+									ji přidáš do košíku – opětovným kliknutím ji odebereš.
+								</p>
+							) : (
+								<div className="max-h-48 overflow-auto rounded-md border border-zinc-100">
+									<table className="w-full text-xs">
+										<thead className="bg-zinc-50 text-zinc-500">
+										<tr>
+											<th className="text-left px-2 py-1">Řada</th>
+											<th className="text-left px-2 py-1">Místo</th>
+											<th className="text-left px-2 py-1">Typ</th>
+											<th className="text-right px-2 py-1">Cena</th>
+											<th className="px-2 py-1" />
+										</tr>
+										</thead>
+										<tbody>
+										{cartItems.map((item) => (
+											<tr
+												key={item.seatId}
+												className="border-t border-zinc-100"
+											>
+												<td className="px-2 py-1 text-zinc-600">{item.row}</td>
+												<td className="px-2 py-1 text-zinc-600">{item.place}</td>
+												<td className="px-2 py-1 text-zinc-600">{item.ticketTypeName}</td>
+												<td className="px-2 py-1 text-right text-black">
+													{formatCurrency(item.price, currency)}
+												</td>
+												<td className="px-2 py-1 text-right text-black">
+													<Button
+														variant="outline"
+														size="sm"
+														onClick={() => toggleSeatInCart(item)}
+													>
+														Odebrat
+													</Button>
+												</td>
+											</tr>
+										))}
+										</tbody>
+									</table>
+								</div>
+							)}
+						</div>
+
 					</div>
 
 					{/* event info */}
@@ -392,7 +502,11 @@ function App() {
 							{eventData?.description}
 						</p>
 
-						<Button variant="secondary" disabled>
+						<Button
+							variant="secondary"
+							disabled={!eventData}
+							onClick={() => eventData && downloadIcsForEvent(eventData)}
+						>
 							Add to calendar
 						</Button>
 					</aside>
