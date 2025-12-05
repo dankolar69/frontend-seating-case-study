@@ -564,31 +564,39 @@ function App() {
 			</main>
 
 			{/* bottom cart */}
-			<div
-				className="max-w-screen-lg p-4 sm:p-6 flex flex-col sm:flex-row justify-between items-center w-full gap-3">
-				<div className="w-full sm:w-auto text-center sm:text-left">
-    <span className="text-sm text-zinc-600">
-      {t.totalFor(totalTickets)}:
-    </span>
-					<div className="text-2xl font-semibold text-black">
-						{formatCurrency(totalAmount, currency)}
-					</div>
-				</div>
+			<nav className="sticky bottom-0 left-0 right-0 bg-white border-t border-zinc-200 flex justify-center">
+				<div className="max-w-screen-lg p-4 sm:p-6 w-full
+                  flex flex-col sm:flex-row
+                  items-center sm:items-center
+                  justify-center sm:justify-between
+                  gap-3">
 
-				<Button
-					className="w-full sm:w-auto"
-					disabled={totalTickets === 0 || !eventData}
-					onClick={openCheckout}
-				>
-					{t.checkoutButton}
-				</Button>
-			</div>
+					<div className="w-full sm:w-auto text-center sm:text-left">
+      <span className="text-sm text-zinc-600">
+        {t.totalFor(totalTickets)}:
+      </span>
+						<div className="text-2xl font-semibold text-black">
+							{formatCurrency(totalAmount, currency)}
+						</div>
+					</div>
+
+					<Button
+						className="w-full sm:w-auto"
+						disabled={totalTickets === 0 || !eventData}
+						onClick={openCheckout}
+					>
+						{t.checkoutButton}
+					</Button>
+
+				</div>
+			</nav>
 
 
 			{/* Checkout Modal */}
 			{checkoutStep !== 'idle' && (
 				<div className="fixed inset-0 bg-black/40 flex items-center justify-center z-30">
-					<div className="bg-white max-w-md w-full mx-4 rounded-lg shadow-lg p-4 sm:p-6 relative max-h-[90vh] overflow-auto">
+					<div
+						className="bg-white max-w-md w-full mx-4 rounded-lg shadow-lg p-4 sm:p-6 relative max-h-[90vh] overflow-auto">
 						<button
 							type="button"
 							className="absolute right-3 top-2 text-zinc-400 hover:text-zinc-600 text-xl"
